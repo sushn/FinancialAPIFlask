@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from dotenv import load_dotenv
 
 from routes.company import company_bp
@@ -25,12 +25,19 @@ def index():
         "name": "FinancialAPIFlask",
         "version": "1.0.0",
         "endpoints": [
+            "GET  /ui",
             "GET  /api/company/<symbol>",
             "GET  /api/market/<symbol>",
             "POST /api/historical",
             "POST /api/insights",
         ],
     }), 200
+
+
+@app.route("/ui", methods=["GET"])
+def api_playground():
+    """Simple browser UI for trying the API endpoints."""
+    return render_template("ui.html"), 200
 
 
 @app.errorhandler(404)

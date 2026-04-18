@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial API Playground</title>
+    <style>
+        :root {
+            --bg: #f4efe7;
+            --surface: #fffdf8;
+            --surface-strong: #fff7eb;
+            --ink: #1f2937;
+            --muted: #5b6472;
+            --line: #d8ccb8;
+            --accent: #0f766e;
+            --accent-strong: #115e59;
+            --danger: #b91c1c;
+            --shadow: 0 18px 50px rgba(31, 41, 55, 0.10);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 28%),
+                radial-gradient(circle at top right, rgba(194, 120, 3, 0.16), transparent 22%),
+                linear-gradient(180deg, #f8f3ea 0%, #f1ebe0 100%);
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.95), rgba(8, 47, 73, 0.94));
+            color: #f9fafb;
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            color: rgba(249, 250, 251, 0.88);
+            font-size: 1.03rem;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .quick-links a {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            color: #eff6ff;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(216, 204, 184, 0.8);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .endpoint {
+            display: inline-block;
+            margin-bottom: 16px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: var(--surface-strong);
+            color: var(--accent-strong);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .card p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.94rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font: inherit;
+            background: #fff;
+        }
+
+        input:focus {
+            outline: 2px solid rgba(15, 118, 110, 0.18);
+            border-color: var(--accent);
+        }
+
+        button {
+            margin-top: 6px;
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font: inherit;
+            font-weight: 700;
+            color: #f9fafb;
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(15, 118, 110, 0.22);
+        }
+
+        .response-shell {
+            margin-top: 24px;
+            background: #10212a;
+            color: #ecfeff;
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .response-shell h2 {
+            margin: 0 0 6px;
+        }
+
+        .response-meta {
+            margin: 0 0 16px;
+            color: #b7c5d1;
+            font-size: 0.95rem;
+        }
+
+        pre {
+            margin: 0;
+            padding: 18px;
+            border-radius: 16px;
+            overflow: auto;
+            background: rgba(10, 17, 24, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            line-height: 1.45;
+            min-height: 240px;
+        }
+
+        .status-ok {
+            color: #86efac;
+        }
+
+        .status-error {
+            color: #fca5a5;
+        }
+
+        .helper {
+            margin-top: 18px;
+            font-size: 0.93rem;
+            color: var(--muted);
+        }
+
+        .helper code {
+            background: rgba(15, 23, 42, 0.08);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 640px) {
+            .hero,
+            .card,
+            .response-shell {
+                padding: 18px;
+                border-radius: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <h1>Financial API Playground</h1>
+            <p>
+                Use this page to call every endpoint in your Flask app directly from the browser.
+                It sends the same requests your API clients would send and shows the raw JSON response.
+            </p>
+            <div class="quick-links">
+                <a href="/">JSON Overview</a>
+                <a href="/api/company/AAPL" target="_blank" rel="noreferrer">Sample Company</a>
+                <a href="/api/market/AAPL" target="_blank" rel="noreferrer">Sample Market</a>
+            </div>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <span class="endpoint">GET /api/company/&lt;symbol&gt;</span>
+                <h2>Company Profile</h2>
+                <p>Fetch summary, sector, website, employees, and key officers for a stock symbol.</p>
+                <form data-method="GET" data-endpoint="/api/company/{symbol}">
+                    <label>
+                        Symbol
+                        <input name="symbol" value="AAPL" required>
+                    </label>
+                    <button type="submit">Load Company Data</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <span class="endpoint">GET /api/market/&lt;symbol&gt;</span>
+                <h2>Market Snapshot</h2>
+                <p>Fetch the latest trading price, change, trading range, and volume information.</p>
+                <form data-method="GET" data-endpoint="/api/market/{symbol}">
+                    <label>
+                        Symbol
+                        <input name="symbol" value="AAPL" required>
+                    </label>
+                    <button type="submit">Load Market Data</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <span class="endpoint">POST /api/historical</span>
+                <h2>Historical Prices</h2>
+                <p>Fetch daily OHLCV records for a symbol across a date range.</p>
+                <form data-method="POST" data-endpoint="/api/historical">
+                    <label>
+                        Symbol
+                        <input name="symbol" value="AAPL" required>
+                    </label>
+                    <label>
+                        Start Date
+                        <input type="date" name="start_date" value="2024-01-01" required>
+                    </label>
+                    <label>
+                        End Date
+                        <input type="date" name="end_date" value="2024-03-31" required>
+                    </label>
+                    <button type="submit">Load Historical Data</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <span class="endpoint">POST /api/insights</span>
+                <h2>Insights</h2>
+                <p>Compute return, volatility, moving averages, trend, and plain-English insights.</p>
+                <form data-method="POST" data-endpoint="/api/insights">
+                    <label>
+                        Symbol
+                        <input name="symbol" value="AAPL" required>
+                    </label>
+                    <label>
+                        Start Date
+                        <input type="date" name="start_date" value="2024-01-01" required>
+                    </label>
+                    <label>
+                        End Date
+                        <input type="date" name="end_date" value="2024-06-30" required>
+                    </label>
+                    <button type="submit">Run Insights</button>
+                </form>
+            </article>
+        </section>
+
+        <section class="response-shell">
+            <h2>Response Viewer</h2>
+            <p class="response-meta" id="response-meta">Submit a form to see the API response here.</p>
+            <pre id="response-output">{
+  "message": "Waiting for request..."
+}</pre>
+            <p class="helper">
+                Tip: open <code>http://127.0.0.1:5000/ui</code> after starting the app with <code>python app.py</code>.
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const meta = document.getElementById("response-meta");
+        const output = document.getElementById("response-output");
+
+        function setResponseMeta(message, isError) {
+            meta.textContent = message;
+            meta.className = "response-meta " + (isError ? "status-error" : "status-ok");
+        }
+
+        function toPayload(formData) {
+            return Object.fromEntries(formData.entries());
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const form = event.currentTarget;
+            const method = form.dataset.method;
+            const formData = new FormData(form);
+            const payload = toPayload(formData);
+
+            let endpoint = form.dataset.endpoint;
+            if (endpoint.includes("{symbol}")) {
+                endpoint = endpoint.replace("{symbol}", encodeURIComponent(payload.symbol || ""));
+            }
+
+            output.textContent = "Loading...";
+            setResponseMeta(`${method} ${endpoint}`, false);
+
+            try {
+                const options = { method };
+                if (method === "POST") {
+                    options.headers = { "Content-Type": "application/json" };
+                    options.body = JSON.stringify(payload);
+                }
+
+                const response = await fetch(endpoint, options);
+                const text = await response.text();
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(text);
+                    output.textContent = JSON.stringify(parsed, null, 2);
+                } catch {
+                    output.textContent = text;
+                }
+
+                const label = `${response.status} ${response.statusText} for ${method} ${endpoint}`;
+                setResponseMeta(label, !response.ok);
+            } catch (error) {
+                setResponseMeta(`Request failed for ${method} ${endpoint}`, true);
+                output.textContent = JSON.stringify(
+                    { success: false, data: null, error: error.message },
+                    null,
+                    2
+                );
+            }
+        }
+
+        document.querySelectorAll("form").forEach((form) => {
+            form.addEventListener("submit", handleSubmit);
+        });
+    </script>
+</body>
+</html>
